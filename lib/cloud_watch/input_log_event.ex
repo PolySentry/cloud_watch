@@ -18,7 +18,23 @@ defmodule CloudWatch.InputLogEvent do
       |> IO.chardata_to_string()
     end
   end
-  
-  @derive Jason.Encoder
+
+  defimpl Jason.Encoder do
+    @epoch :calendar.datetime_to_gregorian_seconds({{1970, 1, 1}, {0, 0, 0}})
+
+    def encode(%{message: message, timestamp: timestamp}, options) do
+      {{years, months, days}, {hours, minutes, seconds, milliseconds}} = timestamp
+
+      timestamp =
+        :calendar.datetime_to_gregorian_seconds({{years, months, days}, {hours, minutes, seconds}})
+        |> Kernel.-(@epoch)
+        |> Kernel.*(1000)
+        |> Kernel.+(milliseconds)
+
+      %{message: message, timestamp: timestamp}
+      |> Jason.Encode.map(options)
+    end
+  end
+
   defstruct [:message, :timestamp]
 end
