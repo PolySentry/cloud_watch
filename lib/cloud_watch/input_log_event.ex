@@ -18,6 +18,7 @@ defmodule CloudWatch.InputLogEvent do
       |> IO.chardata_to_string()
     end
   end
-
+  
+  @derive Jason.Encoder
   defstruct [:message, :timestamp]
 end
